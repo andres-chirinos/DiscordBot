@@ -6,6 +6,7 @@ from discord.ext import commands
 import requests, json, os, redis, pymongo, asyncio, discord
 #from static.register import register
 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 load_dotenv(dotenv_path='.env')
 
 #Memoria y cache interno
@@ -54,7 +55,7 @@ async def me():
 
 @app.errorhandler(Unauthorized)
 async def redirect_unauthorized(e):
-    return await discord_session.create_session(scope=['role_connections.write', 'identify'], prompt=False, )
+    return await discord_session.create_session(scope=['role_connections.write', 'identify'], prompt=False)
 
 @app.errorhandler(Exception)
 async def errorhandler(e):
