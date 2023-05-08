@@ -32,6 +32,8 @@ async def index():
 @app.route("/callback/")
 async def callback():
     await discord_session.callback()
+    tokens = await discord_session.get_authorization_token()
+    await discord_session.save_authorization_token(tokens)
     return redirect(url_for(".me"))
 
 @app.route("/logout")
@@ -49,17 +51,16 @@ async def me():
         username = form['username']
         if len(username):
             data['platform_username'] = username
-            await push_metadata(tokens['access_token'], body=data)  
+            await push_metadata(tokens['access_token'], body = data)  
     user = await discord_session.fetch_user()
     return await render_template('user.html', user = user, data = data)
 
 @app.errorhandler(Unauthorized)
 async def redirect_unauthorized(e):
-    return await discord_session.create_session(scope=['role_connections.write', 'identify'], prompt=False)
+    return await discord_session.create_session(scope=['role_connections.write', 'identify'])
 
 @app.errorhandler(Exception)
 async def errorhandler(e):
-    session.clear()
     return await make_response(jsonify({"message": f'{e}'}),200)
 
 async def push_metadata(access_token, body):
@@ -80,13 +81,18 @@ async def get_metadata(access_token):
     response = requests.get(url, headers={'Authorization': f'Bearer {access_token}'})
     if response.ok:
         data = response.json()
+        if data == {}:
+            data = {
+                "platform_name": "Identificación",
+                "platform_username": None,
+                "metadata":{}
+            }
         return data
     else:
         raise Exception(f'Error getting discord metadata: [{response.status_code}] {response.text}')
 
 #Aplicacion Discord
 class MyBot(commands.Bot):
-
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
 
@@ -124,7 +130,7 @@ bot = MyBot(command_prefix = commands.when_mentioned_or(str(Cache.hget('appdata'
 @app.before_serving
 async def before_serving():
     loop = asyncio.get_event_loop()
-    await bot.login(os.environ.get('TOKEN')) 
+    #await bot.login(os.environ.get('TOKEN')) 
     loop.create_task(bot.connect(), name = 'Bot refresh')
 
 if __name__ == "__main__":
@@ -141,4 +147,4 @@ if __name__ == "__main__":
             }
         },
     })
-    app.run(host=os.environ.get('HOST', None),port=os.environ.get('PORT', '80'))#, debug=True)
+    app.run(host=os.environ.get('HOST', None),port=os.environ.get('PORT', '80'), debug=True)
