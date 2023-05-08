@@ -4,7 +4,7 @@ from logging.config import dictConfig
 from dotenv import load_dotenv
 from discord.ext import commands
 import requests, json, os, redis, pymongo, asyncio, discord
-from static.register import register
+#from static.register import register
 
 load_dotenv(dotenv_path='.env')
 
