@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Me{% endblock %}
+
+{% block content %}
+<div class="justify-content-center p-5">
+    <div class="text-center">
+        <h6>Bienvenido a panel de usuario</h6>
+        <br>
+        <img src="{{user.avatar_url}}" class="rounded" alt="Avatar">
+        <h4>{{user.username}}#{{user.discriminator}}</h4>
+        <p>{{user.id}}</p>
+        <a class="btn btn-danger" href="/logout">Cerrar sesión</a>
+    </div>
+    <br>
+    <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">{{data.platform_name}}</h6>
+        </div>
+        <form method="post" class="card-body">
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">Nick de Minecraft</span>
+                <input type="text" class="form-control" name="username"
+                    placeholder="{{data.platform_username}}">
+            </div>
+            <button class="btn btn-secondary" type="submit">Cambiar</button>
+        </form>
+    </div>
+    <code>{{data.metadata}}</code>
+</div>
+{% endblock content %}
