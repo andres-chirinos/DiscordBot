@@ -1,4 +1,19 @@
-.hola{
-    margin: 0%;
-    padding: 0%;
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#button {
+    position:fixed;
+    top: 5%;
+    right: 40%;
+    left: 40%;
+}
+
+iframe {
+    display: block;
+    background: #000;
+    height: 100vh;
+    width: 100vw;
 }
