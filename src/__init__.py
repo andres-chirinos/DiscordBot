@@ -61,7 +61,7 @@ async def redirect_unauthorized(e):
 
 @app.errorhandler(Exception)
 async def errorhandler(e):
-    return await make_response(jsonify({"message": f'{e}'}),200)
+    return await make_response(jsonify({"message": f'{e}'}),302)
 
 async def push_metadata(access_token, body):
     # GET/PUT /users/@me/applications/:id/role-connection
@@ -100,7 +100,7 @@ class MyBot(commands.Bot):
             'cogs.voice.voice',
             'cogs.webhook',
             'cogs.thread',
-            'cogs.goverment.goverment',
+            'cogs.utils',
             #'cogs.register.register',
             'cogs.message',
             'cogs.minecraft',
@@ -116,7 +116,7 @@ class MyBot(commands.Bot):
         await super().close()
 
     async def on_ready(self):
-        await bot.change_presence(status = discord.Status.do_not_disturb, activity = discord.Game(f"""[{str(Cache.hget('appdata', 'prefix'))}] {str(Cache.hget('appdata', 'desc'))}"""))
+        await bot.change_presence(status = discord.Status.online, activity = discord.Game(f"""[{str(Cache.hget('appdata', 'prefix'))}] {str(Cache.hget('appdata', 'desc'))}"""))
 
     async def on_command_error(self, context, exception):
         await context.send(f'{exception}')

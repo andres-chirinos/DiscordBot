@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-class Goverment(commands.GroupCog, name = 'goverment'):
+class Utils(commands.GroupCog, name = 'utils'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         
@@ -19,4 +19,4 @@ class Goverment(commands.GroupCog, name = 'goverment'):
             await thread.send(content = f"🟢 <@&{int(Cache.hget('roles', 'trader_id'))}>")
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Goverment(bot), guild = discord.Object(id = guild_id))        
+    await bot.add_cog(Utils(bot), guild = discord.Object(id = guild_id))        

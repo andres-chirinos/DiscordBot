@@ -20,12 +20,30 @@
         <form method="post" class="card-body">
             <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1">Nick de Minecraft</span>
-                <input type="text" class="form-control" name="username"
-                    placeholder="{{data.platform_username}}">
+                <input type="text" class="form-control" name="username" placeholder="{{data.platform_username}}">
             </div>
+            {% with metadata = data.metadata %}
+            {% if metadata %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Parametro</th>
+                        <th scope="col">Valor</th>
+                    </tr>
+                </thead>
+                {% for data in metadata %}
+                <tbody>
+                    <tr>
+                        <th>{{data}}</th>
+                        <td>{{metadata[data]}}</td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+            </table>
+            {% endif %}
+            {% endwith %}
             <button class="btn btn-secondary" type="submit">Cambiar</button>
         </form>
     </div>
-    <code>{{data.metadata}}</code>
 </div>
 {% endblock content %}
