@@ -119,7 +119,7 @@ class MyBot(commands.Bot):
         await bot.change_presence(status = discord.Status.online, activity = discord.Game(f"""[{str(Cache.hget('appdata', 'prefix'))}] {str(Cache.hget('appdata', 'desc'))}"""))
 
     async def on_command_error(self, context, exception):
-        await context.send(f'{exception}')
+        print(exception, context)
 
     async def on_error(self, event_method):
         return await super().on_error(event_method)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                 'formatter' : ' %(name)-8s - %(levelname)-8s - %(message)s',
             },
             'discord':{
-                'level':'INFO',
+                'level': 'INFO',
                 'formatter' : ' %(name)-8s - %(levelname)-8s - %(message)s',
             }
         },

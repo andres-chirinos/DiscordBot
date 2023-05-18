@@ -1,5 +1,5 @@
 import os
-import discord
+import discord, requests
 from discord import app_commands
 from discord.ext import commands, tasks
 from __init__ import guild_id, Cache
@@ -14,21 +14,25 @@ class Minecraft(commands.GroupCog, name = 'minecraft'):
         super().__init__()
 
     def get_server_info(self, ip:str):
-        with urllib.request.urlopen("https://api.mcsrvstat.us/2/" + ip) as url:
-            requestdata = json.load(url)
-            data = f"**IP. {ip}**\n"
-            if requestdata['online'] == True:
-                if requestdata.get('hostname',0):
-                    data = data + f"\n`{requestdata['hostname']}`"
-                if requestdata.get('version',0):
-                    data = data + f"\nVersión. `{requestdata['version']}`"
-                if requestdata.get('players'):# and requestdata['players']['max']:
-                    data = data + f"\nJugadores. `{requestdata['players']['online']}` de `{requestdata['players']['max']}`"
-                data = data + f"\n-> https://mcsrvstat.us/server/{ip}"
+        url = f'https://api.mcsrvstat.us/2/{ip}'
+        response = requests.get(url)
+        if response.ok:
+            data = response.json()
+            content = f"**IP. {ip}**\n"
+            if data['online'] == True:
+                if data.get('hostname'):
+                    content = content + f"\n> Host. `{data['hostname']}`"
+                if data.get('version'):
+                    content = content + f"\n> Versión. `{data['version']}`"
+                if data.get('players') and data['players']['max']:
+                    content = content + f"\n> Jugadores. `{data['players']['online']}` de `{data['players']['max']}`"
+                content = content + f"\n-> https://mcsrvstat.us/server/{ip}"
             else:
-                data = data + "Offline"
-            return data
-
+                content = content + "Offline"
+            return content
+        else:
+            raise Exception(f'Error getting discord metadata: [{response.status_code}] {response.text}')
+    
     @app_commands.command(name = 'status', description = 'Obtener el estatus de un server de minecraft')
     @app_commands.describe(ip = 'Ip del servidor')
     async def send(self, interaction: discord.Interaction, ip:str = Cache.hget('minecraft', 'serverip')):

@@ -4,10 +4,17 @@ from discord import app_commands
 from discord.ext import commands
 from __init__ import guild_id, Cache
 
+class Set_view(discord.ui.View):
+    def __init__(self, bot: commands.Bot, buttons):
+        self.bot = bot
+        super().__init__(timeout=None)
+        for button in buttons:
+            button = discord.ui.Button(label = button['name'], style = discord.ButtonStyle.url, url = button['url'])
+            self.add_item(button)
+
 class Message(commands.GroupCog, name = 'message'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-
         super().__init__()
     
     def getmessagefromlink(self, messagelink:str):
@@ -17,16 +24,9 @@ class Message(commands.GroupCog, name = 'message'):
 
     def getjsonmessage(self, json_content:str):
         data = json.loads(json_content)
-        if data['embeds'] == None:
-            data['embeds'] = []
-        else:
-            embeds_json = data['embeds']
-            embeds = list()
-            for embed_json in embeds_json: 
-                embed = discord.Embed().from_dict(embed_json)
-                embeds.append(embed)
-            data['embeds'] = embeds
-        
+        embeds = []
+        if data['embeds'] != None: embeds = [discord.Embed().from_dict(embed_json) for embed_json in data['embeds']]
+        data['embeds'] = embeds
         return data
     ##Message
     #Send
@@ -34,7 +34,7 @@ class Message(commands.GroupCog, name = 'message'):
     @app_commands.describe(json_content = 'Contenido en json')
     async def send(self, interaction: discord.Interaction, json_content:str):
         message = self.getjsonmessage(json_content)
-        await interaction.channel.send(content = message['content'], embeds = message['embeds'])
+        await interaction.channel.send(content = message['content'], embeds = message['embeds'], view = Set_view(bot = self.bot, buttons = message['attachments']))
         return await interaction.response.send_message(content = '🟢',ephemeral = True)
 
     #Edit

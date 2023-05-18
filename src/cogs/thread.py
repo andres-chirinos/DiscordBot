@@ -22,7 +22,6 @@ class Open_modal(discord.ui.Modal):
 class Set_view(discord.ui.View):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        
         super().__init__(timeout = None)
     
     @discord.ui.button(label = "Abrir un hilo privado", style = discord.ButtonStyle.red, custom_id = 'thread_button')
@@ -76,10 +75,8 @@ class Thread(commands.GroupCog, name = 'thread'):
     ##Thread views
     #Set a thread open button
     @app_commands.command(name = 'set', description = 'Boton para crear hilos')
-    async def set(self, interaction: discord.Interaction): 
-        await interaction.channel.send(view = Set_view(self.bot))
-        message = await interaction.original_response()
-        print(message)
+    async def set(self, interaction: discord.Interaction, message: str = None): 
+        await interaction.channel.send(content = message, view = Set_view(self.bot))
         return await interaction.response.send_message(content = '🟢', ephemeral = True, delete_after = 10)
 
 async def setup(bot: commands.Bot): 
