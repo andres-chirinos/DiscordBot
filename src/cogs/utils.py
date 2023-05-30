@@ -10,6 +10,20 @@ class Utils(commands.GroupCog, name = 'utils'):
         
         super().__init__()
 
+    #List status
+    """async def status_autocomplete(self, interaction: discord.Interaction, current: str):
+        return [app_commands.Choice(name = "En linea", value = discord.Status.online),
+                app_commands.Choice(name = "No molestar", value = discord.Status.do_not_disturb),
+                app_commands.Choice(name = "Fuera de linea", value = discord.Status.offline),
+                app_commands.Choice(name = "Idle", value = discord.Status.idle),
+                app_commands.Choice(name = "Invisible", value = discord.Status.invisible)]
+    
+    @app_commands.command(name = 'status', description = 'Cambiar status')
+    @app_commands.describe(status = 'Status')
+    @app_commands.autocomplete(status = status_autocomplete)
+    async def status(self, interaction: discord.Interaction, status):
+        await self.bot.change_presence(status = status, activity = discord.Game(f"[{str(Cache.hget('appdata', 'prefix'))}] {str(Cache.hget('appdata', 'desc'))}"))"""
+
     #Mencionar al hacer una propuesta
     @commands.Cog.listener()
     async def on_thread_create(self, thread):

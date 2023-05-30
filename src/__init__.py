@@ -146,7 +146,7 @@ bot = MyBot(command_prefix = commands.when_mentioned_or(str(Cache.hget('appdata'
 @app.before_serving
 async def before_serving():
     loop = asyncio.get_event_loop()
-    await bot.login(os.environ.get('TOKEN')) 
+    #await bot.login(os.environ.get('TOKEN')) 
     loop.create_task(bot.connect(), name = 'Bot refresh')
 
 if __name__ == "__main__":
