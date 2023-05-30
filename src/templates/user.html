@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Me{% endblock %}
+{% block title %}Perfil{% endblock %}
 
 {% block content %}
-<div class="justify-content-center p-5">
+<div class="container justify-content-center">
     <div class="text-center">
         <h6>Bienvenido a panel de usuario</h6>
         <br>
         <img src="{{user.avatar_url}}" class="rounded" alt="Avatar">
         <h4>{{user.username}}#{{user.discriminator}}</h4>
         <p>{{user.id}}</p>
-        <a class="btn btn-danger" href="/logout">Cerrar sesión</a>
     </div>
     <br>
     <div class="card">
@@ -45,5 +44,6 @@
             <button class="btn btn-secondary" type="submit">Cambiar</button>
         </form>
     </div>
+    <code>{{data}}</code>
 </div>
 {% endblock content %}

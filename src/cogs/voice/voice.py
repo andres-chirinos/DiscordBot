@@ -9,17 +9,6 @@ class Voice(commands.GroupCog, name = 'voice'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voiceclient = None
-        print("ctypes - Find opus:")
-        a = ctypes.util.find_library('opus')
-        print(a)
-        
-        print("Discord - Load Opus:")
-        b = discord.opus.load_opus(a)
-        print(b)
-        
-        print("Discord - Is loaded:")
-        c = discord.opus.is_loaded()
-        print(c)
         super().__init__()
 
     ##Create Voice

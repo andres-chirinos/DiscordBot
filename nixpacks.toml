@@ -1,2 +1,2 @@
 [phases.setup]
-aptPkgs = ["...", "ffmpeg", "opus-tools","libav-tools"]
+aptPkgs = ["...", "ffmpeg"]

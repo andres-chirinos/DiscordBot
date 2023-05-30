@@ -17,33 +17,50 @@ guild_id = int(Cache.hget('appdata', 'guild_id'))
 #print(register(Cache.hget('appdata', 'metadata')))
 
 #Aplicación web
-app = Quart(__name__)
+app = Quart(__name__, root_path='src')
 app.secret_key = os.environ.get('CLIENT_SECRET')
 discord_session = DiscordOAuth2Session(app, client_id=os.environ.get('CLIENT_ID'), client_secret=os.environ.get('CLIENT_SECRET'), redirect_uri=os.environ.get('REDIRECT_URL', "http://localhost/callback"), bot_token=os.environ.get('TOKEN'))
 
 @app.route('/favicon.ico')
 async def favicon():
-    return await send_from_directory(os.path.join(app.root_path, 'static'), 'icon.png', mimetype='image/png')
+    return await send_from_directory('static', 'icon.png', mimetype='image/png')
 
+#Informativas
 @app.route("/")
 async def index():
+    if session:
+        return await render_template('index.html', user = await discord_session.fetch_user())
     return await render_template('index.html')
+
+@app.route("/mapa/")
+async def map():
+    dynmap = Cache.hget('minecraft', 'serverdynmap')
+    if session:
+        return await render_template('map.html', dynmap = dynmap, user = await discord_session.fetch_user())
+    return await render_template('map.html', dynmap = dynmap)
+
+#Manejo de cuenta
+@app.route("/ingresar/")
+async def ingresar():
+    if await discord_session.get_authorization_token():
+        return redirect(url_for(".perfil"))
+    else:
+        return await discord_session.create_session(scope=['role_connections.write', 'identify'])
 
 @app.route("/callback/")
 async def callback():
     await discord_session.callback()
-    tokens = await discord_session.get_authorization_token()
-    await discord_session.save_authorization_token(tokens)
-    return redirect(url_for(".me"))
+    #await discord_session.save_authorization_token(await discord_session.get_authorization_token())
+    return redirect(url_for(".perfil"))
 
-@app.route("/logout")
-async def logout():
+@app.route("/salir/")
+async def salir():
     discord_session.revoke()
     return redirect(url_for(".index"))
 
-@app.route("/me/", methods=['POST', 'GET'])
+@app.route("/perfil/", methods=['POST', 'GET'])
 @requires_authorization
-async def me():
+async def perfil():
     tokens = await discord_session.get_authorization_token()
     data = await get_metadata(tokens['access_token'])
     if request.method == 'POST':
@@ -51,13 +68,12 @@ async def me():
         username = form['username']
         if len(username):
             data['platform_username'] = username
-            await push_metadata(tokens['access_token'], body = data)  
-    user = await discord_session.fetch_user()
-    return await render_template('user.html', user = user, data = data)
+            await push_metadata(tokens['access_token'], body = data) 
+    return await render_template('user.html', user = await discord_session.fetch_user(), data = data, discord_session = discord_session)
 
 @app.errorhandler(Unauthorized)
 async def redirect_unauthorized(e):
-    return await discord_session.create_session(scope=['role_connections.write', 'identify'])
+    return redirect(url_for(".ingresar"))
 
 @app.errorhandler(Exception)
 async def errorhandler(e):
