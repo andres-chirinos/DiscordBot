@@ -9,6 +9,7 @@ role_connection_data = {
 
 metadata = {
     'verified': False,
+    'rank':0,
     }
 
 def changedatabase(Memoria:pymongo.MongoClient, id:int, data):

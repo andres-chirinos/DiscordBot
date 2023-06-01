@@ -100,7 +100,7 @@ class MyBot(commands.Bot):
             'cogs.message',
             'cogs.voice.voice',
             'cogs.minecraft',
-            #'cogs.economy',
+            'cogs.listeners',
         ]
     
     async def setup_hook(self):
