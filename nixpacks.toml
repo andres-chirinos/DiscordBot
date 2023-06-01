@@ -1,2 +1,2 @@
 [phases.setup]
-aptPkgs = ["...", "ffmpeg", "https://github.com/xrisk/heroku-opus"]
+aptPkgs = ["...", "ffmpeg"]

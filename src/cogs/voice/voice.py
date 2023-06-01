@@ -1,8 +1,7 @@
-import os, ctypes, ctypes.util
 import discord
 from discord import app_commands
 from discord.ext import commands
-from __init__ import guild_id, Cache
+from __init__ import guild_id
 from gtts import gTTS
 
 class Voice(commands.GroupCog, name = 'voice'):

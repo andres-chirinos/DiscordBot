@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from __init__ import guild_id, Cache
+from __init__ import guild_id
 
 class Open_modal(discord.ui.Modal):
     def __init__(self, bot: commands.Bot):

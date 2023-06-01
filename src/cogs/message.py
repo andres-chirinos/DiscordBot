@@ -1,8 +1,7 @@
-import os, json
-import discord
+import discord, json
 from discord import app_commands
 from discord.ext import commands
-from __init__ import guild_id, Cache
+from __init__ import guild_id
 
 class Set_view(discord.ui.View):
     def __init__(self, bot: commands.Bot, buttons):

@@ -1,10 +1,7 @@
-import os
 import discord, requests
 from discord import app_commands
 from discord.ext import commands, tasks
 from __init__ import guild_id, Cache
-
-import urllib.request, json
 
 class Minecraft(commands.GroupCog, name = 'minecraft'):
     def __init__(self, bot: commands.Bot):
@@ -18,17 +15,14 @@ class Minecraft(commands.GroupCog, name = 'minecraft'):
         response = requests.get(url)
         if response.ok:
             data = response.json()
-            content = f"**IP. {ip}**\n"
-            if data['online'] == True:
-                if data.get('hostname'):
-                    content = content + f"\n> Host. `{data['hostname']}`"
-                if data.get('version'):
-                    content = content + f"\n> Versión. `{data['version']}`"
-                if data.get('players') and data['players']['max']:
-                    content = content + f"\n> Jugadores. `{data['players']['online']}` de `{data['players']['max']}`"
-                content = content + f"\n-> https://mcsrvstat.us/server/{ip}"
-            else:
-                content = content + "Offline"
+            content = str()
+            for i in data:
+                if i == 'ip' or i == 'port' or i == 'version' or i == 'online' or i == 'hostname' or i == 'software':
+                    content = f'{content}\n**{i}.** `{data[i]}`'
+                elif i == 'motd':
+                    content = f"{content}\n**{i}.** {data[i]['clean'][0]}"
+                elif i == 'players':
+                    content = f"{content}\n**{i}.** {data[i]['online']}/{data[i]['max']}"
             return content
         else:
             raise Exception(f'Error getting discord metadata: [{response.status_code}] {response.text}')
