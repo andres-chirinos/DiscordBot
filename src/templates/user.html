@@ -4,14 +4,6 @@
 
 {% block content %}
 <div class="container justify-content-center">
-    <div class="text-center">
-        <h6>Bienvenido a panel de usuario</h6>
-        <br>
-        <img src="{{user.avatar_url}}" class="rounded" alt="Avatar">
-        <h4>{{user.username}}#{{user.discriminator}}</h4>
-        <p>{{user.id}}</p>
-    </div>
-    <br>
     <div class="card">
         <div class="card-header">
             <h6 class="card-title">{{data.platform_name}}</h6>
@@ -21,30 +13,21 @@
                 <span class="input-group-text" id="basic-addon1">Nick de Minecraft</span>
                 <input type="text" class="form-control" name="username" placeholder="{{data.platform_username}}">
             </div>
-            {% with metadata = data.metadata %}
-            {% if metadata %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Parametro</th>
-                        <th scope="col">Valor</th>
-                    </tr>
-                </thead>
-                {% for data in metadata %}
-                <tbody>
-                    <tr>
-                        <th>{{data}}</th>
-                        <td>{{metadata[data]}}</td>
-                    </tr>
-                </tbody>
-                {% endfor %}
-            </table>
-            {% endif %}
-            {% endwith %}
             <button class="btn btn-primary" type="submit">Cambiar</button>
-            <a class="btn btn-secondary" href="/verificar/" role="button">Actualizar</a>
+            <a class="btn btn-secondary" href="{{url_for('.verify')}}" role="button">Actualizar</a>
         </form>
     </div>
     <code>{{data}}</code>
+    <div class="container mt-5">
+        <div class="card" style="width: 18rem;">
+            <img src="{{user.avatar_url}}" class="card-img-top" alt="Foto">
+            <div class="card-body">
+                <input type="text" class="card-title" value="{{user}}">
+                <p class="card-text">Número de Identidad: 1234567890</p>
+                <p class="card-text">Fecha de Nacimiento: 01/01/1990</p>
+                <p class="card-text">Dirección: Calle Principal, Ciudad</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
