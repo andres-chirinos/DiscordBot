@@ -46,14 +46,14 @@ discord_session = DiscordOAuth2Session(app)
 dynmap = Cache.hget("minecraft", "serverdynmap")
 
 
-@app.url_defaults
-def defaults(endpoint, values):
-    print("def", endpoint, values)
+#@app.url_defaults
+#def defaults(endpoint, values):
+#    print("def", endpoint, values)
 
 
-@app.url_value_preprocessor
-def preprocessor(endpoint, values):
-    print("pre", endpoint, values)
+#@app.url_value_preprocessor
+#def preprocessor(endpoint, values):
+#    print("pre", endpoint, values)
 
 
 @app.route("/")
@@ -221,5 +221,5 @@ if __name__ == "__main__":
         }
     )
     app.run(
-        host=os.environ.get("HOST", None), port=os.environ.get("PORT", "80"), debug=True
+        host=os.environ.get("HOST", "0.0.0.0"), port=os.environ.get("PORT", "80"), debug=True
     )
