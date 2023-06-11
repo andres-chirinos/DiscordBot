@@ -200,7 +200,7 @@ bot = MyBot(
 @app.before_serving
 async def before_serving():
     loop = asyncio.get_event_loop()
-    # await bot.login(os.environ.get('DISCORD_BOT_TOKEN'))
+    await bot.login(os.environ.get('DISCORD_BOT_TOKEN'))
     loop.create_task(bot.connect(), name="Bot refresh")
 
 
