@@ -27,10 +27,12 @@ class Metadata(commands.GroupCog, name="metadata"):
 
     @app_commands.command(name="register", description="Register metadata")
     async def register(self, interaction: discord.Interaction):
-        url = f"https://discord.com/api/v10/applications/{os.environ.get('CLIENT_ID')}/role-connections/metadata"
+        url = f"""https://discord.com/api/v10/applications/{os.environ.get("DISCORD_CLIENT_ID")}/role-connections/metadata"""
+        data = json.loads(Cache.get("registermetadata"))
+
         response = requests.put(
             url,
-            data=Cache.get("data"),
+            data,
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bot {os.environ.get('TOKEN')}",

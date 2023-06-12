@@ -8,7 +8,6 @@ class Voice(commands.GroupCog, name = 'voice'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voiceclient = None
-        discord.opus.load_opus(name="opusfile")
         super().__init__()
 
     ##Create Voice

@@ -3,29 +3,43 @@
 {% block title %}Perfil{% endblock %}
 
 {% block content %}
-<div class="container justify-content-center">
-    <div class="card">
-        <div class="card-header">
-            <h6 class="card-title">{{data.platform_name}}</h6>
-        </div>
-        <form method="post" class="card-body">
-            <div class="input-group mb-3">
-                <span class="input-group-text" id="basic-addon1">Nick de Minecraft</span>
-                <input type="text" class="form-control" name="username" placeholder="{{data.platform_username}}">
-            </div>
-            <button class="btn btn-primary" type="submit">Cambiar</button>
-            <a class="btn btn-secondary" href="{{url_for('.verify')}}" role="button">Actualizar</a>
-        </form>
-    </div>
+<div class="container-sm">
     <code>{{data}}</code>
-    <div class="container mt-5">
-        <div class="card" style="width: 18rem;">
-            <img src="{{user.avatar_url}}" class="card-img-top" alt="Foto">
-            <div class="card-body">
-                <input type="text" class="card-title" value="{{user}}">
-                <p class="card-text">Número de Identidad: 1234567890</p>
-                <p class="card-text">Fecha de Nacimiento: 01/01/1990</p>
-                <p class="card-text">Dirección: Calle Principal, Ciudad</p>
+    <h1 class="display-1">Bienvenido!</h1>
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+            <div class="col-md-4 m-2">
+                <img src="{{user.avatar_url}}" class="img-fluid rounded-circle me-2" alt="Avatar">
+                <h5>{{user}}</h5>
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title text-capitalize">{{data['type']}}</h5>
+                    <form method="post">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">@</span>
+                            <div class="form-floating">
+                                <input type="text" class="form-control" name="username" id="usernamegroupinput"
+                                    placeholder="Steve" value="{{data.platform_username}}">
+                                <label for="usernamegroupinput">Nickname</label>
+                            </div>
+                        </div>
+                        <p class="card-text">
+                            {% if data['verified'] is true %}
+                            <span class="badge rounded-pill text-bg-success">Verificado</span>
+                            {% else %}
+                            <span class="badge rounded-pill text-bg-danger">Verificado</span>
+                            {% endif %}
+                            <span class="badge rounded-pill text-bg-info">Rango {{data['rank']}}</span>
+                            .</p>
+                        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+                        <hr>
+                        <p class="card-text"><small class="text-body-secondary">Actualizado el
+                                {{data['update']}}</small>
+                            <a class="badge bg-secondary" href="{{url_for('.verify')}}" role="button">Verificar</a>
+                        </p>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

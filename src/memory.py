@@ -1,5 +1,6 @@
 import pymongo, requests, json, os
 from __init__ import Cache
+from datetime import datetime
 
 Memoria = pymongo.MongoClient(
     os.getenv(
@@ -8,21 +9,73 @@ Memoria = pymongo.MongoClient(
     )
 )
 
-async def insert_one(database:str, collection:str, document):
+
+async def insert_one(database: str, collection: str, document):
     Database = Memoria.get_database(database)
     UserCollection = Database.get_collection(collection)
     data = UserCollection.insert_one(document)
 
-async def find_one(database:str, collection:str, filter):
+
+async def find_one(database: str, collection: str, filter):
     Database = Memoria.get_database(database)
     UserCollection = Database.get_collection(collection)
     data = UserCollection.find_one(filter)
     return data
 
-async def update_one(database:str, collection:str, filter, update):
+
+async def update_one(database: str, collection: str, filter, update):
     Database = Memoria.get_database(database)
     UserCollection = Database.get_collection(collection)
     UserCollection.update_one(filter, update)
+
+
+async def create_identification(id: int):
+    registermetadata = json.loads(Cache.get("registermetadata"))
+
+    insert = {
+        "type": "identification",
+        "platform_username": "Steve",
+    }
+
+    for registerdata in registermetadata:
+        insert[registerdata["key"]] = None
+
+    await insert_one(
+        "master",
+        str(id),
+        insert,
+    )
+
+    return await find_one("master", str(id), filter={"type": "identification"})
+
+
+async def get_role_connection(id: int):
+    registermetadata = json.loads(Cache.get("registermetadata"))
+    Identification = await find_one("master", str(id), {"type": "identification"})
+
+    if not Identification:
+        Identification = await create_identification(id)
+
+    metadata = dict()
+    for registerdata in registermetadata:
+        key = registerdata["key"]
+        if Identification.get(key):
+            metadata[key] = Identification[key]
+        else:
+            await update_one(
+                "master",
+                str(id),
+                filter={"type": "identification"},
+                update={"$set": {key: None}},
+            )
+
+    role_connection_data = {
+        "platform_name": Identification["type"],
+        "platform_username": Identification["platform_username"],
+        "metadata": metadata,
+    }
+    return role_connection_data
+
 
 async def push_role_connection(tokens, body):
     # GET/PUT /users/@me/applications/:id/role-connection
@@ -37,27 +90,21 @@ async def push_role_connection(tokens, body):
         },
     )
     if not response.ok:
-        raise Exception(f'Error putting discord metadata: [{response.status_code}] {response.text}')
+        raise Exception(
+            f"Error putting discord metadata: [{response.status_code}] {response.text}"
+        )
 
 
-async def get_role_connection(id):
-    registermetadata = json.loads(Cache.get("registermetadata"))
+async def update_role_connection(tokens, id: int):
+    await update_one(
+        "master",
+        str(id),
+        {"type": "identification"},
+        {"$set": {"update": str(datetime.now().isoformat())}},
+    )
+    body = await get_role_connection(id)
+    return await push_role_connection(tokens, body)
 
-    Database = Memoria.get_database("master")
-    UserCollection = Database.get_collection(str(id))
-    Identification = UserCollection.find_one(filter={"type": "identification"})
-
-    metadata = dict()
-    for registerdata in registermetadata:
-        key = registerdata["key"]
-        metadata[key] = Identification[key]
-
-    role_connection_data = {
-        "platform_name": Identification["type"],
-        "platform_username": Identification["platform_username"],
-        "metadata": metadata,
-    }
-    return role_connection_data
 
 # async def get_role_connection(access_token, id:int):
 #    # GET/PUT /users/@me/applications/:id/role-connection

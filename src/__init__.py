@@ -15,6 +15,7 @@ from logging.config import dictConfig
 from dotenv import load_dotenv
 from discord.ext import commands
 from memory import *
+from datetime import datetime
 import os, redis, asyncio, discord
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -31,7 +32,7 @@ Cache = redis.from_url(
 guild_id = int(Cache.hget("appdata", "guild_id"))
 
 # Aplicación web
-url = os.getenv("URI", "http://localhost/")
+url = os.getenv("RAILWAY_STATIC_URL", "http://localhost/")
 
 
 app = Quart(__name__, root_path="src")
@@ -39,20 +40,20 @@ app.secret_key = os.environ.get("DISCORD_CLIENT_SECRET")
 app.config["DISCORD_CLIENT_ID"] = os.getenv("DISCORD_CLIENT_ID")
 app.config["DISCORD_BOT_TOKEN"] = os.getenv("DISCORD_BOT_TOKEN")
 app.config["DISCORD_CLIENT_SECRET"] = os.getenv("DISCORD_CLIENT_SECRET")
-app.config["DISCORD_REDIRECT_URI"] = url + "oauth/callback"
+app.config["DISCORD_REDIRECT_URI"] = "https://" + url + "/oauth/callback"
 
 
 discord_session = DiscordOAuth2Session(app)
 dynmap = Cache.hget("minecraft", "serverdynmap")
 
 
-#@app.url_defaults
-#def defaults(endpoint, values):
+# @app.url_defaults
+# def defaults(endpoint, values):
 #    print("def", endpoint, values)
 
 
-#@app.url_value_preprocessor
-#def preprocessor(endpoint, values):
+# @app.url_value_preprocessor
+# def preprocessor(endpoint, values):
 #    print("pre", endpoint, values)
 
 
@@ -86,11 +87,10 @@ async def close():
 @app.route("/verify/")
 @requires_authorization
 async def verify():
-    token = await discord_session.get_authorization_token()
+    tokens = await discord_session.get_authorization_token()
     user = await discord_session.fetch_user()
-    body = await get_role_connection(user.id)
-    await push_role_connection(token, body)
-    return """Puedes volver a Discord ó haz click <a href="/profile/">aquí</a> para ir a tu profile."""
+    await update_role_connection(tokens, user.id)
+    return await render_template("verify.html", user=user)
 
 
 @app.route("/profile/", methods=["POST", "GET"])
@@ -107,19 +107,10 @@ async def profile():
                 {"type": "identification"},
                 {"$set": {"platform_username": form["username"], "verified": False}},
             )
+
     data = await find_one("master", str(user.id), {"type": "identification"})
     if not data:
-        await insert_one(
-            "master",
-            str(user.id),
-            {
-                "type": "identification",
-                "platform_username": None,
-                "verified": False,
-                "rank": 0,
-            },
-        )
-        data = await find_one("master", str(user.id), {"type": "identification"})
+        data = create_identification(user.id)
 
     return await render_template("user.html", user=user, data=data)
 
@@ -221,5 +212,6 @@ if __name__ == "__main__":
         }
     )
     app.run(
-        host=os.environ.get("HOST", "0.0.0.0"), port=os.environ.get("PORT", "80"), debug=True
+        host=os.environ.get("HOST", "0.0.0.0"),
+        port=os.environ.get("PORT", "80"),
     )
