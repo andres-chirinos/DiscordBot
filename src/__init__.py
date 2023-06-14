@@ -59,23 +59,38 @@ dynmap = Cache.hget("minecraft", "serverdynmap")
 
 @app.route("/")
 async def index():
-    return await render_template("index.html")
+    try:
+        user = await discord_session.fetch_user()
+    except:
+        user = None
+        pass
+    return await render_template("index.html", user=user)
 
 
-@app.route("/oauth/<path:path>")
-async def oauth(path):
+@app.route("/oauth/", defaults={'redirect' : '/', 'prompt': 'false'})
+@app.route("/oauth/<path:redirect>/<string:prompt>")
+async def oauth(redirect, prompt):
+    try:
+        await discord_session.fetch_user()
+        discord_session.revoke()
+    except:
+        pass
+    if prompt.lower() == 'true':
+        prompt = True
+    else:
+        prompt = False
+    
     return await discord_session.create_session(
         scope=["role_connections.write", "identify"],
-        prompt=True,
-        data={"redirect": path},
+        prompt=prompt,
+        data={"redirect": redirect},
     )
 
 
-@app.route("/oauth/callback/")
+@app.route("/oauth/callback")
 async def callback():
     data = await discord_session.callback()
-    await flash(message="Ha ingresado correctamente", category="info")
-    return redirect(url + data["redirect"])
+    return redirect(url_for(".index") + data["redirect"])
 
 
 @app.route("/oauth/close/")
@@ -110,15 +125,14 @@ async def profile():
 
     data = await find_one("master", str(user.id), {"type": "identification"})
     if not data:
-        data = create_identification(user.id)
+        data = await create_identification(user.id)
 
     return await render_template("user.html", user=user, data=data)
 
 
 @app.errorhandler(Unauthorized)
 async def redirect_unauthorized(e):
-    await flash(message="No esta autorizado", category="warning")
-    return redirect(url_for(".oauth", path=request.path))
+    return redirect(url_for("oauth", redirect=request.path, prompt="false"))
 
 
 @app.errorhandler(RateLimited)
@@ -129,12 +143,13 @@ async def rate_limited(e):
 
 @app.errorhandler(AccessDenied)
 async def access_denied(e):
-    await flash(message="Acceso denegado", category="error")
+    await flash(message="No esta autorizado", category="warning")
     return redirect(url_for(".index"))
 
 
 @app.errorhandler(HttpException)
 async def http_exception(e):
+    await flash(message=e, category="danger")
     return await make_response(jsonify({"message": f"{e}"}), 302)
 
 
