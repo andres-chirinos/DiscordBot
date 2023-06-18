@@ -8,6 +8,10 @@ class Voice(commands.GroupCog, name = 'voice'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voiceclient = None
+        try:
+            discord.opus.libopus_loader("libopus0")
+        except:
+            pass
         super().__init__()
 
     ##Create Voice
